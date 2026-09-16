@@ -104,7 +104,12 @@ a { color: inherit; text-decoration: none; }
 
 /* ===== app frame ===== */
 #root { position: relative; z-index: 2; display: flex; flex-direction: column; min-height: 100%; }
-.av-main { flex: 1; }
+.av-main {
+  flex: 1;
+  /* forces GPU compositing: works around a Chromium tile-invalidation bug
+     where content painted after React hydration can go missing until a repaint */
+  transform: translateZ(0);
+}
 
 /* ===== pixel + neon text ===== */
 .pixel { font-family: var(--pixel); letter-spacing: 0.04em; line-height: 1.25; text-transform: uppercase; }
