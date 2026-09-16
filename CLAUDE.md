@@ -23,6 +23,10 @@ npx skills@latest add Klerith/fernando-skills
 
 There is no test runner configured yet.
 
+
+# Skills
+Usa siempre /frontend-design para hacer interfaces de usuario.
+
 ## Architecture
 
 - Next.js App Router (`app/`), TypeScript, Tailwind CSS v4 (via `@tailwindcss/postcss`), React 19.
