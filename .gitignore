@@ -4,6 +4,7 @@
 !.playwright-screenshots/.gitkeep
 
 .env.local
+!.env.local.template
 
 .playwright-mcp/*
 !.playwright-mcp/.gitkeep
