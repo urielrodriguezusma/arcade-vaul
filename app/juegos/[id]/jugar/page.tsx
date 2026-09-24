@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
 import { GAMES } from "@/lib/data";
 import { useUser } from "@/components/user-provider";
+import { GAME_COMPONENTS } from "@/games/registry";
 
 export default function GamePlayerPage({ params }: PageProps<"/juegos/[id]/jugar">) {
   const { id } = use(params);
   const game = GAMES.find((g) => g.id === id);
   if (!game) notFound();
+  const Playable = GAME_COMPONENTS[game.id];
 
   const router = useRouter();
   const { user } = useUser();
@@ -20,22 +22,36 @@ export default function GamePlayerPage({ params }: PageProps<"/juegos/[id]/jugar
   const [over, setOver] = useState(false);
   const [name, setName] = useState(user ? user.name : "INVITADO");
   const [saved, setSaved] = useState(false);
+  const [gameLevel, setGameLevel] = useState(1);
+  const [runId, setRunId] = useState(0);
 
-  const level = Math.floor(score / 2500) + 1;
+  // Juegos reales informan su nivel; la arena simulada lo deriva del puntaje falso
+  const level = Playable ? gameLevel : Math.floor(score / 2500) + 1;
 
   useEffect(() => {
-    if (over || paused) return;
+    if (Playable || over || paused) return;
     const t = setInterval(() => setScore((s) => s + Math.floor(10 + Math.random() * 90)), 220);
     return () => clearInterval(t);
-  }, [over, paused]);
+  }, [Playable, over, paused]);
 
   const endGame = () => setOver(true);
   const restart = () => {
     setScore(0);
     setLives(3);
+    setGameLevel(1);
     setPaused(false);
     setOver(false);
     setSaved(false);
+    setRunId((r) => r + 1);
+  };
+
+  const handleStats = (stats: { score: number; lives: number; level: number }) => {
+    setScore(stats.score);
+    setLives(stats.lives);
+    setGameLevel(stats.level);
+  };
+  const togglePause = () => {
+    if (!over) setPaused((p) => !p);
   };
 
   const saveScore = () => {
@@ -67,13 +83,24 @@ export default function GamePlayerPage({ params }: PageProps<"/juegos/[id]/jugar
 
       <div className="crt">
         <div className="crt-screen">
-          <div className="game-arena">
-            <div className="grid-floor"></div>
-            <div className="enemy e1"></div>
-            <div className="enemy e2"></div>
-            <div className="enemy e3"></div>
-            <div className="player-ship"></div>
-          </div>
+          {Playable ? (
+            <Playable
+              key={runId}
+              paused={paused || over}
+              onStats={handleStats}
+              onGameOver={endGame}
+              onTogglePause={togglePause}
+              onAutoPause={() => setPaused(true)}
+            />
+          ) : (
+            <div className="game-arena">
+              <div className="grid-floor"></div>
+              <div className="enemy e1"></div>
+              <div className="enemy e2"></div>
+              <div className="enemy e3"></div>
+              <div className="player-ship"></div>
+            </div>
+          )}
           {paused && (
             <div className="crt-content" style={{ background: "rgba(0,0,0,0.6)", zIndex: 5 }}>
               <div>
@@ -89,6 +116,10 @@ export default function GamePlayerPage({ params }: PageProps<"/juegos/[id]/jugar
           <span>CARGA · 1MB</span>
         </div>
       </div>
+
+      {Playable && (
+        <div className="player-controls">← → ROTAR · ↑ PROPULSAR · ESPACIO DISPARAR · P PAUSA</div>
+      )}
 
       {over && (
         <div className="modal-bd">
