@@ -676,6 +676,22 @@ a { color: inherit; text-decoration: none; }
   background: var(--green); box-shadow: 0 0 6px var(--green);
 }
 
+/* real in-screen game (canvas) */
+.game-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+.player-controls {
+  margin-top: 14px;
+  text-align: center;
+  font-family: var(--pixel);
+  font-size: 8px;
+  line-height: 1.8;
+  color: var(--ink-faint);
+  letter-spacing: 0.16em;
+}
+
 /* fake in-screen game */
 .game-arena {
   position: absolute; inset: 0;
